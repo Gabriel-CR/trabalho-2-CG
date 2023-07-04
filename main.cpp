@@ -17,6 +17,9 @@ bool pontual = false;
 bool luzesEscondidas = true;
 float k = -0.001;
 
+bool viewports = false;
+bool scissored = false;
+
 int pontoSelecionado = 0; //names = [1,n] //n = pontosControle.size()
 //bool transPontos = glutGUI::trans_obj; //= true;
 
@@ -37,29 +40,6 @@ void desenhaPontosDeControle()
             objetos[i]->desenha();
         glPopName();
     }
-
-    //teste triangulo
-//    glBegin(GL_TRIANGLES);
-//        glNormal3f(0,0,1); //definir a normal permite ver as cores mais vivas ao posicionar a iluminacao adequadamente
-//        GUI::setColor(1,1,1);
-//        glVertex3f(0,0,1);
-//        GUI::setColor(0,0,1,0.0);
-//        glVertex3f(2,0,1);
-//        GUI::setColor(0,1,0,0.0);
-//        glVertex3f(0,2,1);
-//    glEnd();
-//    //teste triangulo usando glColor (sem iluminacao)
-//    glDisable(GL_LIGHTING);
-//    glBegin(GL_TRIANGLES);
-//        glNormal3f(0,0,1);
-//        glColor4f(0,1,0,1);
-//        glVertex3f(-1,2,1);
-//        glColor4f(0,0,1,1);
-//        glVertex3f(-3,0,1);
-//        glColor4f(1,1,1,0);
-//        glVertex3f(-1,0,1);
-//    glEnd();
-//    glEnable(GL_LIGHTING);
 }
 
 //picking
@@ -82,9 +62,6 @@ int picking( GLint cursorX, GLint cursorY, int w, int h ) {
 //-------------------picking------------------
 
 //-------------------viewPorts------------------
-bool viewports = false;
-bool scissored = false;
-
 void cenario();
 
 //visao de duas cameras (duas viewports), viewport auxiliar sobrepondo a principal
@@ -113,7 +90,31 @@ void viewPorts() {
         Vetor3D eye = pontosControle[4];
         Vetor3D center = pontosControle[2];
         //gluLookAt(0,3,1, 0,0,0, 0,0,-1);
-        gluLookAt(eye.x,eye.y,eye.z, center.x,center.y,center.z, 0.0,1.0,0.0);
+        glLoadIdentity();
+        gluLookAt(3,0,0, 0,0,0, 0,1,0);
+//        gluLookAt(eye.x,eye.y,eye.z, center.x,center.y,center.z, 0.0,1.0,0.0);
+            cenario();
+
+    if (!scissored) {
+        //misturando com a principal
+        glViewport(0, 3*height/8, width/4, height/4);
+    } else {
+        //recortando/substituindo o pedaço
+        GUI::glScissoredViewport(0, 3*height/4, width/4, height/4);
+    }
+        glLoadIdentity();
+        gluLookAt(0,3,0, 0,0,0, 0,0,-1);
+            cenario();
+
+    if (!scissored) {
+        //misturando com a principal
+        glViewport(0, 0, width/4, height/4);
+    } else {
+        //recortando/substituindo o pedaço
+        GUI::glScissoredViewport(0, 3*height/4, width/4, height/4);
+    }
+        glLoadIdentity();
+        gluLookAt(0,0,3, 0,0,0, 0,1,0);
             cenario();
 }
 //-------------------viewPorts------------------
@@ -189,6 +190,8 @@ void desenha() {
 
     if (draw_shadow) {
         sombra();
+    } else if (viewports) {
+        viewPorts();
     } else {
         cenario();
     }
@@ -199,7 +202,7 @@ void desenha() {
         glPopMatrix();
     }
 
-    if (pontoSelecionado!=0) {
+    if (pontoSelecionado != 0) {
         pontosControle[pontoSelecionado-1].x += 0.5*glutGUI::dtx;
         pontosControle[pontoSelecionado-1].y += 0.5*glutGUI::dty;
         pontosControle[pontoSelecionado-1].z += 0.5*glutGUI::dtz;
@@ -208,20 +211,6 @@ void desenha() {
         objetos[pontoSelecionado-1]->rotacao = r;
         objetos[pontoSelecionado-1]->escala = e;
     }
-
-//    if (pontoSelecionado >= 0 and pontoSelecionado < (int)objetos.size()) {
-//        objetos[pontoSelecionado]->translacao.x += glutGUI::dtx;
-//        objetos[pontoSelecionado]->translacao.y += glutGUI::dty;
-//        objetos[pontoSelecionado]->translacao.z += glutGUI::dtz;
-
-//        objetos[pontoSelecionado]->rotacao.x += glutGUI::dax;
-//        objetos[pontoSelecionado]->rotacao.y += glutGUI::day;
-//        objetos[pontoSelecionado]->rotacao.z += glutGUI::daz;
-
-//        objetos[pontoSelecionado]->escala.x += glutGUI::dsx;
-//        objetos[pontoSelecionado]->escala.y += glutGUI::dsy;
-//        objetos[pontoSelecionado]->escala.z += glutGUI::dsz;
-//    }
 
     t.x += glutGUI::dtx;
     t.y += glutGUI::dty;
@@ -256,7 +245,6 @@ void teclado(unsigned char key, int x, int y) {
         break;
     case 'd':
         draw_shadow = !draw_shadow;
-        cout << "sombra: " << draw_shadow << endl;
         break;
 
     default:
@@ -274,7 +262,7 @@ void mouse(int button, int state, int x, int y) {
             //picking
             int pick = picking( x, y, 5, 5 );
             if (pick != 0) {
-                cout << pontoSelecionado << " " << pick << endl;
+//                cout << pontoSelecionado << " " << pick << endl;
                 pontoSelecionado = pick;
                 t = objetos[pontoSelecionado-1]->translacao;
                 r = objetos[pontoSelecionado-1]->rotacao;
@@ -290,12 +278,12 @@ int main()
 {
     cout << "Hello World!" << endl;
 
-    int n = 1;
+    int n = 5;
     float dist = 1.0;
     for (int i = 0; i < n; i++) {
-        objetos.push_back(new Cadeira());
-//        pontosControle.push_back( Vetor3D((i-n/2)*dist,1,0) );
-        pontosControle.push_back( Vetor3D(objetos[i]->translacao) );
+//        objetos.push_back(new Cadeira());
+        pontosControle.push_back( Vetor3D((i-n/2)*dist,1,0) );
+//        pontosControle.push_back( Vetor3D(objetos[i]->translacao) );
     }
 
     GUI gui = GUI(800,600,desenha,teclado,mouse);
