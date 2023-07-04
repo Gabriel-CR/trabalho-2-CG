@@ -12,6 +12,10 @@ vector<Objeto*> objetos;
 Vetor3D t = Vetor3D(0, 0, 0);
 Vetor3D r = Vetor3D(0, 0, 0);
 Vetor3D e = Vetor3D(1, 1, 1);
+bool draw_shadow = false;
+bool pontual = false;
+bool luzesEscondidas = true;
+float k = -0.001;
 
 int pontoSelecionado = 0; //names = [1,n] //n = pontosControle.size()
 //bool transPontos = glutGUI::trans_obj; //= true;
@@ -35,27 +39,27 @@ void desenhaPontosDeControle()
     }
 
     //teste triangulo
-    glBegin(GL_TRIANGLES);
-        glNormal3f(0,0,1); //definir a normal permite ver as cores mais vivas ao posicionar a iluminacao adequadamente
-        GUI::setColor(1,1,1);
-        glVertex3f(0,0,1);
-        GUI::setColor(0,0,1,0.0);
-        glVertex3f(2,0,1);
-        GUI::setColor(0,1,0,0.0);
-        glVertex3f(0,2,1);
-    glEnd();
-    //teste triangulo usando glColor (sem iluminacao)
-    glDisable(GL_LIGHTING);
-    glBegin(GL_TRIANGLES);
-        glNormal3f(0,0,1);
-        glColor4f(0,1,0,1);
-        glVertex3f(-1,2,1);
-        glColor4f(0,0,1,1);
-        glVertex3f(-3,0,1);
-        glColor4f(1,1,1,0);
-        glVertex3f(-1,0,1);
-    glEnd();
-    glEnable(GL_LIGHTING);
+//    glBegin(GL_TRIANGLES);
+//        glNormal3f(0,0,1); //definir a normal permite ver as cores mais vivas ao posicionar a iluminacao adequadamente
+//        GUI::setColor(1,1,1);
+//        glVertex3f(0,0,1);
+//        GUI::setColor(0,0,1,0.0);
+//        glVertex3f(2,0,1);
+//        GUI::setColor(0,1,0,0.0);
+//        glVertex3f(0,2,1);
+//    glEnd();
+//    //teste triangulo usando glColor (sem iluminacao)
+//    glDisable(GL_LIGHTING);
+//    glBegin(GL_TRIANGLES);
+//        glNormal3f(0,0,1);
+//        glColor4f(0,1,0,1);
+//        glVertex3f(-1,2,1);
+//        glColor4f(0,0,1,1);
+//        glVertex3f(-3,0,1);
+//        glColor4f(1,1,1,0);
+//        glVertex3f(-1,0,1);
+//    glEnd();
+//    glEnable(GL_LIGHTING);
 }
 
 //picking
@@ -123,25 +127,78 @@ void cenario() {
 
     GUI::drawOrigin(0.5);
 
-    //GUI::setColor(1,1,1,1,true);
-    //GUI::drawFloor(5,5,0.05,0.05);
-    GUI::setColor(0,0,0);
-    Desenha::drawGrid( 5, 0, 1, 1 );
+    GUI::setColor(1,1,1,1,true);
+    GUI::drawFloor(5,5,0.05,0.05);
+//    GUI::setColor(0,0,0);
+//    Desenha::drawGrid( 5, 0, 1, 1 );
 
     desenhaPontosDeControle();
+}
+
+void sombra() {
+    GUI::setLight(4,1,3,5,true,false,false,luzesEscondidas);
+    GUI::setLight(5,-1.5,0.5,-1,true,false,false,luzesEscondidas);
+    GUI::setLight(6,-5,3,5,true,false,false,luzesEscondidas);
+
+    GUI::drawOrigin(0.5);
+
+    //GUI::setColor(1,0,0);
+    GUI::setColor(0.6,0.4,0.0);
+    glPushMatrix();
+        //-------------------sombra-------------------
+        glTranslated(0.0,k,0.0); //glTranslated(0.0,k-0.001,0.0);
+        GUI::drawFloor(25,25); //-0.001 definido dentro do drawFloor
+        //-------------------sombra-------------------
+    glPopMatrix();
+
+    for (int i = 0; i < (int)objetos.size(); ++i) {
+        glPushMatrix();
+            objetos[i]->desenha();
+        glPopMatrix();
+    }
+
+    //-------------------sombra-------------------
+    //definindo a luz que sera usada para gerar a sombra
+    float lightPos[4] = {1.5 + glutGUI::lx, 1.5 + glutGUI::ly, 1.5 + glutGUI::lz, pontual};
+    GUI::setLight(0,1.5,1.5,1.5,true,false,false,false,pontual);
+    //desenhando os objetos projetados
+    glPushMatrix();
+            GLfloat sombra[4][4];
+            GUI::shadowMatrixYk(sombra,lightPos,k);
+            glMultTransposeMatrixf( (GLfloat*)sombra );
+
+        glDisable(GL_LIGHTING);
+        glColor3d(0.0,0.0,0.0);
+        if (draw_shadow) {
+            bool aux = glutGUI::draw_eixos;
+            glutGUI::draw_eixos = false;
+            for (int i = 0; i < (int)objetos.size(); ++i) {
+                glPushMatrix();
+                    objetos[i]->desenha();
+                glPopMatrix();
+            }
+            glutGUI::draw_eixos = aux;
+        }
+        glEnable(GL_LIGHTING);
+    glPopMatrix();
+    //-------------------sombra-------------------
 }
 
 void desenha() {
     GUI::displayInit();
 
-    if (!viewports) {
-        cenario();
+    if (draw_shadow) {
+        sombra();
     } else {
-        viewPorts();
+        cenario();
     }
 
-    //transladando ponto selecionado atraves do picking
-    //if (pontoSelecionado > 0 and pontoSelecionado <= objetos.size()) {
+    for (int i = 0; i < (int)objetos.size(); ++i) {
+        glPushMatrix();
+            objetos[i]->desenha();
+        glPopMatrix();
+    }
+
     if (pontoSelecionado!=0) {
         pontosControle[pontoSelecionado-1].x += 0.5*glutGUI::dtx;
         pontosControle[pontoSelecionado-1].y += 0.5*glutGUI::dty;
@@ -151,6 +208,20 @@ void desenha() {
         objetos[pontoSelecionado-1]->rotacao = r;
         objetos[pontoSelecionado-1]->escala = e;
     }
+
+//    if (pontoSelecionado >= 0 and pontoSelecionado < (int)objetos.size()) {
+//        objetos[pontoSelecionado]->translacao.x += glutGUI::dtx;
+//        objetos[pontoSelecionado]->translacao.y += glutGUI::dty;
+//        objetos[pontoSelecionado]->translacao.z += glutGUI::dtz;
+
+//        objetos[pontoSelecionado]->rotacao.x += glutGUI::dax;
+//        objetos[pontoSelecionado]->rotacao.y += glutGUI::day;
+//        objetos[pontoSelecionado]->rotacao.z += glutGUI::daz;
+
+//        objetos[pontoSelecionado]->escala.x += glutGUI::dsx;
+//        objetos[pontoSelecionado]->escala.y += glutGUI::dsy;
+//        objetos[pontoSelecionado]->escala.z += glutGUI::dsz;
+//    }
 
     t.x += glutGUI::dtx;
     t.y += glutGUI::dty;
@@ -183,6 +254,10 @@ void teclado(unsigned char key, int x, int y) {
     case 's':
         scissored = !scissored;
         break;
+    case 'd':
+        draw_shadow = !draw_shadow;
+        cout << "sombra: " << draw_shadow << endl;
+        break;
 
     default:
         break;
@@ -200,10 +275,11 @@ void mouse(int button, int state, int x, int y) {
             int pick = picking( x, y, 5, 5 );
             if (pick != 0) {
                 cout << pontoSelecionado << " " << pick << endl;
-//                t = objetos[pontoSelecionado]->translacao;
-//                r = objetos[pontoSelecionado]->rotacao;
-//                e = objetos[pontoSelecionado]->escala;
                 pontoSelecionado = pick;
+                t = objetos[pontoSelecionado-1]->translacao;
+                r = objetos[pontoSelecionado-1]->rotacao;
+                e = objetos[pontoSelecionado-1]->escala;
+                objetos[pontoSelecionado-1]->selecionado = true;
                 glutGUI::lbpressed = false;
             }
         }
