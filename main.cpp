@@ -15,7 +15,7 @@ Vetor3D e = Vetor3D(1, 1, 1);
 bool draw_shadow = false;
 bool pontual = false;
 bool luzesEscondidas = true;
-float k = -0.001;
+float k = 0.0;
 
 bool viewports = false;
 bool scissored = false;
@@ -87,8 +87,8 @@ void viewPorts() {
         GUI::glScissoredViewport(0, 3*height/4, width/4, height/4);
     }
         glLoadIdentity();
-        Vetor3D eye = pontosControle[4];
-        Vetor3D center = pontosControle[2];
+//        Vetor3D eye = pontosControle[4];
+//        Vetor3D center = pontosControle[2];
         //gluLookAt(0,3,1, 0,0,0, 0,0,-1);
         glLoadIdentity();
         gluLookAt(3,0,0, 0,0,0, 0,1,0);
@@ -154,6 +154,9 @@ void sombra() {
 
     for (int i = 0; i < (int)objetos.size(); ++i) {
         glPushMatrix();
+            /*
+             * Fazer um if para caso não seja para mostrar a combra do objeto selecionado
+             */
             objetos[i]->desenha();
         glPopMatrix();
     }
@@ -203,9 +206,9 @@ void desenha() {
     }
 
     if (pontoSelecionado != 0) {
-        pontosControle[pontoSelecionado-1].x += 0.5*glutGUI::dtx;
-        pontosControle[pontoSelecionado-1].y += 0.5*glutGUI::dty;
-        pontosControle[pontoSelecionado-1].z += 0.5*glutGUI::dtz;
+//        pontosControle[pontoSelecionado-1].x += 0.5*glutGUI::dtx;
+//        pontosControle[pontoSelecionado-1].y += 0.5*glutGUI::dty;
+//        pontosControle[pontoSelecionado-1].z += 0.5*glutGUI::dtz;
         objetos[pontoSelecionado-1]->selecionado = true;
         objetos[pontoSelecionado-1]->translacao = t;
         objetos[pontoSelecionado-1]->rotacao = r;
@@ -280,8 +283,8 @@ int main()
 
     int n = 5;
     float dist = 1.0;
+    objetos.push_back(new Cadeira());
     for (int i = 0; i < n; i++) {
-//        objetos.push_back(new Cadeira());
         pontosControle.push_back( Vetor3D((i-n/2)*dist,1,0) );
 //        pontosControle.push_back( Vetor3D(objetos[i]->translacao) );
     }

@@ -789,7 +789,7 @@ void GUI::drawFloor(float width, float height, float discrWidth, float discrHeig
     //Desenha::drawGrid( width/discr, 0, height/discr, discr );
 
     glPushMatrix();
-        glTranslated(0.,-0.0001,0.);
+        glTranslated(0.,-0.0002,0.);
         drawQuad(width,height,discrWidth,discrHeight,texWidth,texHeight);
     glPopMatrix();
 
