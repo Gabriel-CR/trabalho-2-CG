@@ -24,20 +24,10 @@ bool scissored = false;
 int pontoSelecionado = 0; //names = [1,n] //n = pontosControle.size()
 //bool transPontos = glutGUI::trans_obj; //= true;
 
-void desenhaPontosDeControle()
-{
-    //desenhando pontos de controle
+void desenhaPontosDeControle() {
+    // desenhando objetos selecionáveis do cenário
     for (int i = 0; i < (int)objetos.size(); i++) {
-        //definindo cor da selecao
-        if (i == pontoSelecionado - 1) {
-            GUI::setColor(1,1,1,1,true);
-        } else {
-            GUI::setColor(0,0,1,1,true);
-        }
-        //desenhando (definindo nomes para o picking)
-        Vetor3D p = pontosControle[i];
-        glPushName(i + 1); //não se deve definir name = 0!
-//            GUI::drawSphere(p.x,p.y,p.z,0.2);
+        glPushName(i + 1); // não se deve definir name = 0!
             objetos[i]->desenha();
         glPopName();
     }
@@ -50,14 +40,14 @@ int picking( GLint cursorX, GLint cursorY, int w, int h ) {
 
     GUI::pickingInit(cursorX,cursorY,w,h,selectBuf,BUFSIZE);
 
-//de acordo com a implementacao original da funcao display
-    //lembrar de nao inicializar a matriz de projecao, para nao ignorar a gluPickMatrix
+    // de acordo com a implementacao original da funcao display
+    // lembrar de nao inicializar a matriz de projecao, para nao ignorar a gluPickMatrix
     GUI::displayInit();
-    //só precisa desenhar o que for selecionavel
+    // só precisa desenhar o que for selecionavel
     desenhaPontosDeControle();
-//fim-de acordo com a implementacao original da funcao display
+    // fim-de acordo com a implementacao original da funcao display
 
-    //retornando o name do objeto (ponto de controle) mais proximo da camera (z minimo! *[matrizes de normalizacao da projecao])
+    // retornando o name do objeto (ponto de controle) mais proximo da camera (z minimo! *[matrizes de normalizacao da projecao])
     return GUI::pickingClosestName(selectBuf,BUFSIZE);
 }
 //-------------------picking------------------
@@ -261,14 +251,8 @@ void mouse(int button, int state, int x, int y) {
 int main()
 {
     cout << "Hello World!" << endl;
-
-    int n = 5;
-    float dist = 1.0;
     objetos.push_back(new Cadeira());
-    for (int i = 0; i < n; i++) {
-        pontosControle.push_back( Vetor3D((i-n/2)*dist,1,0) );
-//        pontosControle.push_back( Vetor3D(objetos[i]->translacao) );
-    }
+    // precisa desenhar o cenario todo antes de iniciar o programa
 
     GUI gui = GUI(800,600,desenha,teclado,mouse);
 }
