@@ -16,6 +16,7 @@ bool draw_shadow = false;
 bool pontual = false;
 bool luzesEscondidas = true;
 float k = 0.0;
+float distancia = 3.0;
 
 bool viewports = false;
 bool scissored = false;
@@ -70,52 +71,26 @@ void viewPorts() {
     float height = glutGUI::height;
 
     glMatrixMode(GL_MODELVIEW);
-
-    //viewport principal
-    //glViewport(glutGUI::width/4, 2*glutGUI::height/4, glutGUI::width/4, glutGUI::height/4);
     glViewport(0, 0, width, height);
         glLoadIdentity();
         gluLookAt(glutGUI::cam->e.x,glutGUI::cam->e.y,glutGUI::cam->e.z, glutGUI::cam->c.x,glutGUI::cam->c.y,glutGUI::cam->c.z, glutGUI::cam->u.x,glutGUI::cam->u.y,glutGUI::cam->u.z);
             cenario();
 
-    //viewport auxiliar sobrepondo a principal
-    if (!scissored) {
-        //misturando com a principal
-        glViewport(0, 3*height/4, width/4, height/4);
-    } else {
-        //recortando/substituindo o pedaço
-        GUI::glScissoredViewport(0, 3*height/4, width/4, height/4);
-    }
-        glLoadIdentity();
-//        Vetor3D eye = pontosControle[4];
-//        Vetor3D center = pontosControle[2];
-        //gluLookAt(0,3,1, 0,0,0, 0,0,-1);
-        glLoadIdentity();
-        gluLookAt(3,0,0, 0,0,0, 0,1,0);
-//        gluLookAt(eye.x,eye.y,eye.z, center.x,center.y,center.z, 0.0,1.0,0.0);
-            cenario();
+    glViewport(0, 3*height/4, width/4, height/4);
+    glLoadIdentity();
+    glLoadIdentity();
+    gluLookAt(distancia,0,0, 0,0,0, 0,1,0);
+        cenario();
 
-    if (!scissored) {
-        //misturando com a principal
-        glViewport(0, 3*height/8, width/4, height/4);
-    } else {
-        //recortando/substituindo o pedaço
-        GUI::glScissoredViewport(0, 3*height/4, width/4, height/4);
-    }
-        glLoadIdentity();
-        gluLookAt(0,3,0, 0,0,0, 0,0,-1);
-            cenario();
+    glViewport(0, 3*height/8, width/4, height/4);
+    glLoadIdentity();
+    gluLookAt(0,distancia,0, 0,0,0, 0,0,-1);
+        cenario();
 
-    if (!scissored) {
-        //misturando com a principal
-        glViewport(0, 0, width/4, height/4);
-    } else {
-        //recortando/substituindo o pedaço
-        GUI::glScissoredViewport(0, 3*height/4, width/4, height/4);
-    }
-        glLoadIdentity();
-        gluLookAt(0,0,3, 0,0,0, 0,1,0);
-            cenario();
+    glViewport(0, 0, width/4, height/4);
+    glLoadIdentity();
+    gluLookAt(0,0,distancia, 0,0,0, 0,1,0);
+        cenario();
 }
 //-------------------viewPorts------------------
 
@@ -242,6 +217,12 @@ void teclado(unsigned char key, int x, int y) {
 
     case 'v':
         viewports = !viewports;
+        break;
+    case '+':
+        distancia += 1.0;
+        break;
+    case '-':
+        distancia > 3 ? distancia -= 1.0 : distancia = 3.0;
         break;
     case 's':
         scissored = !scissored;
