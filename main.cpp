@@ -103,9 +103,9 @@ void cenario() {
 }
 
 void sombra() {
-    GUI::setLight(4,1,3,5,true,false,false,luzesEscondidas);
-    GUI::setLight(5,-1.5,0.5,-1,true,false,false,luzesEscondidas);
-    GUI::setLight(6,-5,3,5,true,false,false,luzesEscondidas);
+//    GUI::setLight(4,1,3,5,true,false,false,luzesEscondidas);
+//    GUI::setLight(5,-1.5,0.5,-1,true,false,false,luzesEscondidas);
+//    GUI::setLight(6,-5,3,5,true,false,false,luzesEscondidas);
 
     GUI::drawOrigin(0.5);
 
@@ -222,6 +222,9 @@ void teclado(unsigned char key, int x, int y) {
         break;
     case 'd':
         draw_shadow = !draw_shadow;
+        break;
+    case 'p':
+        pontual = !pontual;
         break;
 
     default:
