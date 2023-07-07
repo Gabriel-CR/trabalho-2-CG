@@ -236,7 +236,10 @@ void mouse(int button, int state, int x, int y) {
             //picking
             int pick = picking( x, y, 5, 5 );
             if (pick != 0) {
-//                cout << pontoSelecionado << " " << pick << endl;
+                cout << pontoSelecionado << " " << pick << endl;
+                if (pontoSelecionado - 1 >= 0) {
+                    objetos[pontoSelecionado - 1]->selecionado = false;
+                }
                 pontoSelecionado = pick;
                 t = objetos[pontoSelecionado-1]->translacao;
                 r = objetos[pontoSelecionado-1]->rotacao;
@@ -251,6 +254,7 @@ void mouse(int button, int state, int x, int y) {
 int main()
 {
     cout << "Hello World!" << endl;
+    objetos.push_back(new Cadeira());
     objetos.push_back(new Cadeira());
     // precisa desenhar o cenario todo antes de iniciar o programa
 
