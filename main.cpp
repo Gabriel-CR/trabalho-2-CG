@@ -103,11 +103,11 @@ void cenario() {
 }
 
 void sombra() {
-//    GUI::setLight(4,1,3,5,true,false,false,luzesEscondidas);
-//    GUI::setLight(5,-1.5,0.5,-1,true,false,false,luzesEscondidas);
-//    GUI::setLight(6,-5,3,5,true,false,false,luzesEscondidas);
-
     GUI::drawOrigin(0.5);
+
+    GUI::drawPlane(Vetor3D(2,2,3), k, 15, 15, 0.5, 0.5); //chama o drawFloor dentro //-0.001 definido dentro do drawFloor
+    GUI::drawPlane(Vetor3D(0,0,1), k, 15, 15, 0.5, 0.5);
+    GUI::drawPlane(Vetor3D(0,1,0), k, 15, 15, 0.5, 0.5);
 
     //GUI::setColor(1,0,0);
     GUI::setColor(0.6,0.4,0.0);
@@ -128,8 +128,9 @@ void sombra() {
     }
 
     //-------------------sombra-------------------
-    //definindo a luz que sera usada para gerar a sombra
+    // permitir o usuario transladar a luz
     float lightPos[4] = {1.5 + glutGUI::lx, 1.5 + glutGUI::ly, 1.5 + glutGUI::lz, pontual};
+    // alterar entre luz pontual e luz distante com o uso do atributo pontual
     GUI::setLight(0,1.5,1.5,1.5,true,false,false,false,pontual);
     //desenhando os objetos projetados
     glPushMatrix();
