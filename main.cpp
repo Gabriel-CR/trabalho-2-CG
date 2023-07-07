@@ -13,6 +13,7 @@ Vetor3D t = Vetor3D(0, 0, 0);
 Vetor3D r = Vetor3D(0, 0, 0);
 Vetor3D e = Vetor3D(1, 1, 1);
 bool draw_shadow = false;
+bool draw_shadow_objeto = true;
 bool pontual = false;
 bool luzesEscondidas = true;
 float k = 0.0;
@@ -143,7 +144,9 @@ void sombra() {
             glutGUI::draw_eixos = false;
             for (int i = 0; i < (int)objetos.size(); ++i) {
                 glPushMatrix();
-                    objetos[i]->desenha();
+                    if (!(!draw_shadow_objeto && i == pontoSelecionado - 1)) {
+                        objetos[i]->desenha();
+                    }
                 glPopMatrix();
             }
             glutGUI::draw_eixos = aux;
@@ -215,7 +218,7 @@ void teclado(unsigned char key, int x, int y) {
         distancia > 3 ? distancia -= 1.0 : distancia = 3.0;
         break;
     case 's':
-        scissored = !scissored;
+        draw_shadow_objeto = !draw_shadow_objeto;
         break;
     case 'd':
         draw_shadow = !draw_shadow;
@@ -236,7 +239,6 @@ void mouse(int button, int state, int x, int y) {
             //picking
             int pick = picking( x, y, 5, 5 );
             if (pick != 0) {
-                cout << pontoSelecionado << " " << pick << endl;
                 if (pontoSelecionado - 1 >= 0) {
                     objetos[pontoSelecionado - 1]->selecionado = false;
                 }
