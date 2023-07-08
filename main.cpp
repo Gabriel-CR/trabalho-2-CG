@@ -42,7 +42,7 @@ bool luzesEscondidas = true;
 GLfloat k = 0.0;
 float distancia = 10.0;
 int view_port = 1;
-
+int cam_id = 0;
 bool viewports = false;
 bool scissored = false;
 bool ortho = false;
@@ -50,6 +50,34 @@ bool enable_pick = false;
 
 int pontoSelecionado = 0; //names = [1,n] //n = pontosControle.size()
 //bool transPontos = glutGUI::trans_obj; //= true;
+
+void trocar_camera() {
+    (cam_id + 1 > 6) ? cam_id = 0 : cam_id += 1;
+
+    switch (cam_id) {
+    case 0:
+        glutGUI::cam = new CameraDistante(0,10,20, 0,0,0, 0,1,0);
+        break;
+    case 1:
+        glutGUI::cam = new CameraDistante(-4.59024,38.9058,4.10113,  0,-0.223607,0,  0,1,0);
+        break;
+    case 2:
+        glutGUI::cam = new CameraDistante(-18.6038,4.64228,-10.1431,  0,0,0,  0,1,0);
+        break;
+    case 3:
+        glutGUI::cam = new CameraDistante(-20,4,0,  0,0,0,  0,1,0);
+        break;
+    case 4:
+        glutGUI::cam = new CameraJogo(-1.5,2,0,  0,2,0,  0,1,0);
+        break;
+    case 5:
+        glutGUI::cam = new CameraJogo(-1.5,2,4,  0,2,4,  0,1,0);
+        break;
+    case 6:
+        glutGUI::cam = new CameraJogo(-5,2,-5,  -2,0,0,  0,1,0);
+        break;
+    }
+}
 
 void desenhaPontosDeControle() {
     // desenhando objetos selecionáveis do cenário
@@ -274,6 +302,9 @@ void teclado(unsigned char key, int x, int y) {
         break;
     case 'K':
         k += 1.0;
+        break;
+    case 'c':
+        trocar_camera();
         break;
 
     default:
