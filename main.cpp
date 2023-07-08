@@ -16,11 +16,12 @@ bool draw_shadow = false;
 bool draw_shadow_objeto = true;
 bool pontual = false;
 bool luzesEscondidas = true;
-float k = 0.0;
+GLfloat k = 1.0;
 float distancia = 3.0;
 
 bool viewports = false;
 bool scissored = false;
+bool ortho = false;
 
 int pontoSelecionado = 0; //names = [1,n] //n = pontosControle.size()
 //bool transPontos = glutGUI::trans_obj; //= true;
@@ -102,40 +103,19 @@ void cenario() {
     desenhaPontosDeControle();
 }
 
-void sombra() {
-    GUI::drawOrigin(0.5);
-
-    GUI::drawPlane(Vetor3D(2,2,3), k, 15, 15, 0.5, 0.5); //chama o drawFloor dentro //-0.001 definido dentro do drawFloor
-    GUI::drawPlane(Vetor3D(0,0,1), k, 15, 15, 0.5, 0.5);
-    GUI::drawPlane(Vetor3D(0,1,0), k, 15, 15, 0.5, 0.5);
-
-    //GUI::setColor(1,0,0);
-    GUI::setColor(0.6,0.4,0.0);
+/*
+* recebe a posição da luz e np (normal do plano)
+* desenha a sombra de cada objeto em um plano
+*/
+void desenha_sombra(float lightPos[4], Vetor3D np) {
     glPushMatrix();
-        //-------------------sombra-------------------
-        glTranslated(0.0,k,0.0); //glTranslated(0.0,k-0.001,0.0);
-        GUI::drawFloor(25,25); //-0.001 definido dentro do drawFloor
-        //-------------------sombra-------------------
+        GUI::setColor(0.6,0.4,0.0);
+        GUI::drawPlane(np, -k, 15, 15, 0.5, 0.5);
     glPopMatrix();
-
-    for (int i = 0; i < (int)objetos.size(); ++i) {
-        glPushMatrix();
-            /*
-             * Fazer um if para caso não seja para mostrar a combra do objeto selecionado
-             */
-            objetos[i]->desenha();
-        glPopMatrix();
-    }
-
-    //-------------------sombra-------------------
-    // permitir o usuario transladar a luz
-    float lightPos[4] = {1.5 + glutGUI::lx, 1.5 + glutGUI::ly, 1.5 + glutGUI::lz, pontual};
-    // alterar entre luz pontual e luz distante com o uso do atributo pontual
-    GUI::setLight(0,1.5,1.5,1.5,true,false,false,false,pontual);
-    //desenhando os objetos projetados
     glPushMatrix();
             GLfloat sombra[4][4];
-            GUI::shadowMatrixYk(sombra,lightPos,k);
+            GLfloat plano[4] = {np.x, np.y, np.z, k};
+            GUI::shadowMatrix(sombra, plano, lightPos);
             glMultTransposeMatrixf( (GLfloat*)sombra );
 
         glDisable(GL_LIGHTING);
@@ -154,9 +134,32 @@ void sombra() {
         }
         glEnable(GL_LIGHTING);
     glPopMatrix();
+}
+
+void sombra() {
+    GUI::drawOrigin(0.5);
+
+    for (int i = 0; i < (int)objetos.size(); ++i) {
+        glPushMatrix();
+            objetos[i]->desenha();
+        glPopMatrix();
+    }
+
+    //-------------------sombra-------------------
+    // permitir o usuario transladar a luz
+    float lightPos[4] = {1.5 + glutGUI::lx, 1.5 + glutGUI::ly, 1.5 + glutGUI::lz, pontual};
+    // alterar entre luz pontual e luz distante com o uso do atributo pontual
+    GUI::setLight(0,1.5,1.5,1.5,true,false,false,false,pontual);
+    //desenhando os objetos projetados
+    desenha_sombra(lightPos, Vetor3D(0, 0, 1));
+    desenha_sombra(lightPos, Vetor3D(0, 1, 0));
+    desenha_sombra(lightPos, Vetor3D(-1, 0, 0));
+    desenha_sombra(lightPos, Vetor3D(0, sqrt(2)/2, sqrt(2)/2));
     //-------------------sombra-------------------
 }
 
+float f = 4.0;
+const float ar = 2.0;
 void desenha() {
     GUI::displayInit();
 
@@ -167,6 +170,15 @@ void desenha() {
     } else {
         cenario();
     }
+
+//    glMatrixMode(GL_PROJECTION);
+//    glLoadIdentity();
+//    if (ortho) {
+//        glOrtho(-f*ar,f*ar,-f,f,0.1,1000.);
+//    }
+//    else {
+//        gluPerspective(30,ar,0.1,1000.);
+//    }
 
     for (int i = 0; i < (int)objetos.size(); ++i) {
         glPushMatrix();
@@ -227,6 +239,12 @@ void teclado(unsigned char key, int x, int y) {
     case 'p':
         pontual = !pontual;
         break;
+    case 'k':
+        k -= 1.0;
+        break;
+    case 'K':
+        k += 1.0;
+        break;
 
     default:
         break;
@@ -257,8 +275,7 @@ void mouse(int button, int state, int x, int y) {
     }
 }
 
-int main()
-{
+int main() {
     cout << "Hello World!" << endl;
     objetos.push_back(new Cadeira());
     objetos.push_back(new Cadeira());

@@ -48,6 +48,8 @@ class GUI {
         //-------------------sombra-------------------
         static void shadowMatrixYk(GLfloat shadowMat[4][4], GLfloat lightpos[4], GLfloat k);
         static void shadowMatrix(GLfloat shadowMat[4][4], GLfloat groundplane[4], GLfloat lightpos[4]);
+        static void drawPlane(GLfloat planeABCD[], float width = 5.0, float height = 5.0, float discrWidth = 0.03, float discrHeight = 0.03, float texWidth = 5.0, float texHeight = 5.0);
+        static void drawPlane(Vetor3D n, GLfloat distMinPlanoOrigem, float width = 5.0, float height = 5.0, float discrWidth = 0.03, float discrHeight = 0.03, float texWidth = 5.0, float texHeight = 5.0);
         //-------------------sombra-------------------
 
         //-------------------picking------------------

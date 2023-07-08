@@ -390,6 +390,46 @@ void GUI::shadowMatrix(GLfloat shadowMat[4][4], GLfloat groundplane[4], GLfloat 
     shadowMat[3][2] = 0.f - lightpos[W] * groundplane[Z];
     shadowMat[3][3] = dot - lightpos[W] * groundplane[W];
 }
+
+void GUI::drawPlane(GLfloat planeABCD[4], float width, float height, float discrWidth, float discrHeight, float texWidth, float texHeight)
+{
+    //rotação do plano
+        //GUI::drawFloor desenha plano com normal = (0,1,0)
+        //rotação do plano deve transformar o vetor (0,1,0) no vetor n do plano
+        //(0,1,0).n = |(0,1,0)|.|n|.cos(angle)
+        Vetor3D n = Vetor3D(planeABCD[0], planeABCD[1], planeABCD[2]);
+        float cos = n.y / n.modulo(); //prodEscalar/(|n|.|(0,1,0)|)
+        Vetor3D axis = Vetor3D(0,1,0).prodVetorial(n);
+        glRotatef(acos(cos)*180./PI, axis.x,axis.y,axis.z); //glRotatef já normaliza axis
+    //distância do plano para a origem
+        //para um ponto qualquer p pertencente ao plano,
+        //p.n = |p|.|n|.cos(theta)
+        //dist = |p|.cos(theta) = p.n/|n| = xyz.ABC/|n| = -D/|n|
+        float dist = -planeABCD[3]/n.modulo();
+        glTranslatef(0.0,dist,0.0);
+    //desenha
+        GUI::drawFloor(width,height,discrWidth,discrHeight,texWidth,texHeight);
+}
+
+//plano arbitrario
+//definindo a equacao do plano de maneira mais intuitiva
+//  passando a direcao perpendicular ao plano (n não precisa estar normalizado, pois está sendo normalizado dentro)
+//  e a distancia minima do plano para a origem
+void GUI::drawPlane(Vetor3D n, GLfloat distMinPlanoOrigem, float width, float height, float discrWidth, float discrHeight, float texWidth, float texHeight)
+{
+    enum {X,Y,Z,W};
+    GLfloat dot;
+
+    GLfloat groundplane[4];
+    //normalizando o vetor normal do plano
+    n.normaliza();
+    groundplane[X] = n.x;
+    groundplane[Y] = n.y;
+    groundplane[Z] = n.z;
+    groundplane[W] = -distMinPlanoOrigem; //com a normal unitaria, D significa exatamente essa distancia, mas com sinal trocado (D=-k)
+
+    drawPlane(groundplane,width,height,discrWidth,discrHeight,texWidth,texHeight);
+}
 //-------------------sombra-------------------
 
 //-------------------picking------------------
@@ -789,7 +829,7 @@ void GUI::drawFloor(float width, float height, float discrWidth, float discrHeig
     //Desenha::drawGrid( width/discr, 0, height/discr, discr );
 
     glPushMatrix();
-        glTranslated(0.,-0.0002,0.);
+        glTranslated(0.,-0.0005,0.);
         drawQuad(width,height,discrWidth,discrHeight,texWidth,texHeight);
     glPopMatrix();
 
