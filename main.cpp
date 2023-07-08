@@ -7,27 +7,27 @@ using namespace std;
 #include <objeto.h>
 
 #include <shape.h>
-
-#include <cubo.h>
-#include <sofa.h>
-#include <televisao.h>
 #include <cama.h>
-#include <guardaroupa.h>
-#include <cadeira.h>
-#include <mesa.h>
-#include <fogao.h>
-#include <geladeira.h>
-#include <microondas.h>
+#include <mesapc.h>
 #include <pc.h>
 #include <documento.h>
-#include <mesapc.h>
+#include <cadeira.h>
+#include <guardaroupa.h>
+#include <sofa.h>
+#include <televisao.h>
 #include <piscina.h>
 #include <escorregador.h>
-#include <vasosanitario.h>
-#include <pia.h>
-#include <chuveiro.h>
 #include <parede.h>
-#include <teto.h>
+
+//#include <mesa.h>
+//#include <cubo.h>
+//#include <fogao.h>
+//#include <geladeira.h>
+//#include <microondas.h>
+//#include <vasosanitario.h>
+//#include <pia.h>
+//#include <chuveiro.h>
+//#include <teto.h>
 
 //-------------------picking------------------
 vector<Vetor3D> pontosControle;
@@ -46,6 +46,7 @@ int view_port = 1;
 bool viewports = false;
 bool scissored = false;
 bool ortho = false;
+bool enable_pick = false;
 
 int pontoSelecionado = 0; //names = [1,n] //n = pontosControle.size()
 //bool transPontos = glutGUI::trans_obj; //= true;
@@ -76,9 +77,7 @@ int picking( GLint cursorX, GLint cursorY, int w, int h ) {
     // retornando o name do objeto (ponto de controle) mais proximo da camera (z minimo! *[matrizes de normalizacao da projecao])
     return GUI::pickingClosestName(selectBuf,BUFSIZE);
 }
-//-------------------picking------------------
 
-//-------------------viewPorts------------------
 void cenario();
 
 //visao de duas cameras (duas viewports), viewport auxiliar sobrepondo a principal
@@ -93,20 +92,20 @@ void viewPorts() {
             cenario();
 
     if (view_port == 1) {
-        glViewport(0, 3*height/4, width/4, height/4);
+        GUI::glScissoredViewport(0, 0, width/4, height/4);
         glLoadIdentity();
         glLoadIdentity();
-        gluLookAt(distancia,0,0, 0,0,0, 0,1,0);
+        gluLookAt(-20,5,0, 0,0,0, 0,1,0);
             cenario();
     } else if (view_port == 2) {
-        glViewport(0, 3*height/4, width/4, height/4);
+        GUI::glScissoredViewport(0, 0, width/4, height/4);
         glLoadIdentity();
-        gluLookAt(0,distancia,0, 0,0,0, 0,0,-1);
+        gluLookAt(0,30,0, 0,0,0, 0,0,-1);
             cenario();
     } else if (view_port == 3) {
-        glViewport(0, 3*height/4, width/4, height/4);
+        GUI::glScissoredViewport(0, 0, width/4, height/4);
         glLoadIdentity();
-        gluLookAt(0,0,distancia, 0,0,0, 0,1,0);
+        gluLookAt(-8,0,20, 0,0,0, 0,1,0);
             cenario();
     }
 }
@@ -196,8 +195,6 @@ void sombra() {
     //-------------------sombra-------------------
 }
 
-float f = 4.0;
-const float ar = 2.0;
 void desenha() {
     GUI::displayInit();
 
@@ -210,15 +207,6 @@ void desenha() {
         viewPorts();
     }
 
-//    glMatrixMode(GL_PROJECTION);
-//    glLoadIdentity();
-//    if (ortho) {
-//        glOrtho(-f*ar,f*ar,-f,f,0.1,1000.);
-//    }
-//    else {
-//        gluPerspective(30,ar,0.1,1000.);
-//    }
-
     for (int i = 0; i < (int)objetos.size(); ++i) {
         glPushMatrix();
             objetos[i]->desenha();
@@ -226,9 +214,6 @@ void desenha() {
     }
 
     if (pontoSelecionado != 0) {
-//        pontosControle[pontoSelecionado-1].x += 0.5*glutGUI::dtx;
-//        pontosControle[pontoSelecionado-1].y += 0.5*glutGUI::dty;
-//        pontosControle[pontoSelecionado-1].z += 0.5*glutGUI::dtz;
         objetos[pontoSelecionado-1]->selecionado = true;
         objetos[pontoSelecionado-1]->translacao = t;
         objetos[pontoSelecionado-1]->rotacao = r;
@@ -281,6 +266,9 @@ void teclado(unsigned char key, int x, int y) {
     case 'p':
         pontual = !pontual;
         break;
+    case 'P':
+        enable_pick = !enable_pick;
+        break;
     case 'k':
         k -= 1.0;
         break;
@@ -297,7 +285,7 @@ void mouse(int button, int state, int x, int y) {
     GUI::mouseButtonInit(button,state,x,y);
 
     // if the left button is pressed
-    if (button == GLUT_LEFT_BUTTON) {
+    if (button == GLUT_LEFT_BUTTON && enable_pick) {
         // when the button is pressed
         if (state == GLUT_DOWN) {
             //picking
@@ -319,8 +307,6 @@ void mouse(int button, int state, int x, int y) {
 
 int main() {
     cout << "Hello World!" << endl;
-//    objetos.push_back(new Cadeira());
-//    objetos.push_back(new Cadeira());
     // precisa desenhar o cenario todo antes de iniciar o programa
     init_cenario();
 

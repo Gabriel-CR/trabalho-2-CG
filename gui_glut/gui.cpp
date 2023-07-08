@@ -119,7 +119,7 @@ void GUI::displayInit()
     }
 
     if (glutGUI::perspective)
-        gluPerspective(30.,ar,0.1,1000.); //?(S . T)? . Np . S . Sh
+        gluPerspective(60.,ar,0.1,1000.); //?(S . T)? . Np . S . Sh
     else
         glOrtho(-orthof*w,orthof*w,-orthof*h,orthof*h,0.0,100.0);
 
