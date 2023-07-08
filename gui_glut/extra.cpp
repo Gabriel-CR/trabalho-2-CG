@@ -224,11 +224,11 @@ void glutGUI::defaultKey(unsigned char key, int x, int y)
         glShadeModel(GL_FLAT);
         break;
 
-    case 'c':
-        posCam = 1;
-        delete cam;
-        cam = new CameraDistante(); //CameraDistante(0,1,5, 0,1,0, 0,1,0);
-        break;
+//    case 'c':
+//        posCam = 1;
+//        delete cam;
+//        cam = new CameraDistante(); //CameraDistante(0,1,5, 0,1,0, 0,1,0);
+//        break;
     case 'j':
         posCam = 1;
         delete cam;

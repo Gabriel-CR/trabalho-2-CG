@@ -19,15 +19,15 @@ using namespace std;
 #include <escorregador.h>
 #include <parede.h>
 
-//#include <mesa.h>
-//#include <cubo.h>
-//#include <fogao.h>
-//#include <geladeira.h>
-//#include <microondas.h>
-//#include <vasosanitario.h>
-//#include <pia.h>
-//#include <chuveiro.h>
-//#include <teto.h>
+#include <mesa.h>
+#include <cubo.h>
+#include <fogao.h>
+#include <geladeira.h>
+#include <microondas.h>
+#include <vasosanitario.h>
+#include <pia.h>
+#include <chuveiro.h>
+#include <teto.h>
 
 //-------------------picking------------------
 vector<Vetor3D> pontosControle;
@@ -42,7 +42,7 @@ bool luzesEscondidas = true;
 GLfloat k = 0.0;
 float distancia = 10.0;
 int view_port = 1;
-int cam_id = 0;
+int cam_id = 1;
 bool viewports = false;
 bool scissored = false;
 bool ortho = false;
@@ -52,29 +52,32 @@ int pontoSelecionado = 0; //names = [1,n] //n = pontosControle.size()
 //bool transPontos = glutGUI::trans_obj; //= true;
 
 void trocar_camera() {
-    (cam_id + 1 > 6) ? cam_id = 0 : cam_id += 1;
+    (cam_id + 1 > 7) ? cam_id = 0 : cam_id += 1;
 
     switch (cam_id) {
     case 0:
         glutGUI::cam = new CameraDistante(0,10,20, 0,0,0, 0,1,0);
         break;
     case 1:
-        glutGUI::cam = new CameraDistante(-4.59024,38.9058,4.10113,  0,-0.223607,0,  0,1,0);
+        glutGUI::cam = new CameraDistante(4.89371,2.08418,6.21982,  4,0,0,  0,1,0);
         break;
     case 2:
-        glutGUI::cam = new CameraDistante(-18.6038,4.64228,-10.1431,  0,0,0,  0,1,0);
+        glutGUI::cam = new CameraDistante(3.96518,2.87032,5.51583, 4.04424,0.0180712,-0.0114385, 0,1,0);
         break;
     case 3:
-        glutGUI::cam = new CameraDistante(-20,4,0,  0,0,0,  0,1,0);
+        glutGUI::cam = new CameraDistante(2.9813,3.00707,4.62673,  5.41546,0.179585,3.12905,  0,1,0);
         break;
     case 4:
-        glutGUI::cam = new CameraJogo(-1.5,2,0,  0,2,0,  0,1,0);
+        glutGUI::cam = new CameraDistante(4.78903,2.7093,5.65548, 4.0221,-0.0190038,0.00617758, 0,1,0);
         break;
     case 5:
-        glutGUI::cam = new CameraJogo(-1.5,2,4,  0,2,4,  0,1,0);
+        glutGUI::cam = new CameraDistante(-15.7642,5.73366,-5.55515, -5.46877,0.722722,-5.57549, 0,1,0);
         break;
     case 6:
-        glutGUI::cam = new CameraJogo(-5,2,-5,  -2,0,0,  0,1,0);
+        glutGUI::cam = new CameraDistante(-16.7051,2.92491,-5.5601, -5.46877,0.722722,-5.57549, 0,1,0);
+        break;
+    case 7:
+        glutGUI::cam = new CameraDistante(-15.7477,2.54459,-0.871436, -5.46877,0.722722,-5.57549, 0,1,0);
         break;
     }
 }
@@ -128,12 +131,12 @@ void viewPorts() {
     } else if (view_port == 2) {
         GUI::glScissoredViewport(0, 0, width/4, height/4);
         glLoadIdentity();
-        gluLookAt(0,30,0, 0,0,0, 0,0,-1);
+        gluLookAt(0,28,0, 0,0,0, 0,0,1);
             cenario();
     } else if (view_port == 3) {
         GUI::glScissoredViewport(0, 0, width/4, height/4);
         glLoadIdentity();
-        gluLookAt(-8,0,20, 0,0,0, 0,1,0);
+        gluLookAt(-8,4,20, 0,0,0, 0,1,0);
             cenario();
     }
 }
@@ -153,15 +156,31 @@ void init_cenario() {
     objetos.push_back(new Sofa( Vetor3D(1, 0, 0.5), Vetor3D(0, 180, 0), Vetor3D(0, 0, 0) ));
     objetos.push_back(new Televisao( Vetor3D(1, 0, -3), Vetor3D(0, 0, 0), Vetor3D(0, 0, 0) ));
 
+    objetos.push_back(new Chuveiro( Vetor3D(6, 0, 6.5), Vetor3D(0, 180, 0), Vetor3D(0, 0, 0) ));
+    objetos.push_back(new Pia( Vetor3D(7.1, 1, 3), Vetor3D(0, 180, 0), Vetor3D(0, 0, 0) ));
+    objetos.push_back(new VasoSanitario( Vetor3D(5, 0, 3), Vetor3D(0, 90, 0), Vetor3D(0, 0, 0) ));
+
+    objetos.push_back(new Mesa( Vetor3D(5.5, 0, -2), Vetor3D(0, 0, 0), Vetor3D(0, 0, 0) ));
+    objetos.push_back(new Cadeira( Vetor3D(5.5, 0, -3), Vetor3D(0, 0, 0), Vetor3D(0, 0, 0) ));
+    objetos.push_back(new Cadeira( Vetor3D(5.5, 0, -1), Vetor3D(0, 180, 0), Vetor3D(0, 0, 0) ));
+
+    objetos.push_back(new Geladeira( Vetor3D(0, 0, -5.8), Vetor3D(0, 0, 0), Vetor3D(0, 0, 0) ));
+    objetos.push_back(new Fogao( Vetor3D(2, 0, -5.5), Vetor3D(0, 0, 0), Vetor3D(0, 0, 0) ));
+    objetos.push_back(new GuardaRoupa( Vetor3D(5, 0, -6), Vetor3D(0, 0, 0), Vetor3D(-0.06, -0.5, 0) ));
+    objetos.push_back(new Microondas( Vetor3D(5, 1.3, -6), Vetor3D(0, 0, 0), Vetor3D(0, 0, 0) ));
+
     objetos.push_back(new Piscina( Vetor3D(-4.7, 0.01, 2), Vetor3D(0, 90, 0), Vetor3D(0.5, 0.5, 0.5) ));
     objetos.push_back(new Escorregador( Vetor3D(-6, 0, -5), Vetor3D(0, 45, 0), Vetor3D(0, 0, 0) ));
+
+//    objetos.push_back(new Parede( Vetor3D(3, 0, 0), Vetor3D(0, 0, 0), Vetor3D(0, 0, 0) ));
+//    objetos.push_back(new Teto( Vetor3D(3, 2, 0), Vetor3D(0, 0, 0), Vetor3D(0, 0, 0) ));
 }
 
 void cenario() {
     GUI::setLight(0,-10.0,10.0,0.0,true,false,false,false,pontual);
-    GUI::drawOrigin(0.5);
+    GUI::drawOrigin(2);
 
-    GUI::setColor(1,1,1,1);
+    GUI::setColor(1,0.6,0);
     GUI::drawFloor(15,15,0.05,0.05);
 
     desenhaPontosDeControle();
@@ -171,10 +190,10 @@ void cenario() {
 * recebe a posição da luz e np (normal do plano)
 * desenha a sombra de cada objeto em um plano
 */
-void desenha_sombra(float lightPos[4], Vetor3D np, float k, float h=25.0, float w=25.0) {
+void desenha_sombra(float lightPos[4], Vetor3D np, float k) {
     glPushMatrix();
-        GUI::setColor(1,1,1,1);
-        GUI::drawPlane(np, -k-0.0005, h, w, 0.5, 0.5);
+        GUI::setColor(1,0.6,0);
+        GUI::drawPlane(np, -k-0.0005, 25.0, 25.0, 0.5, 0.5);
     glPopMatrix();
     glPushMatrix();
         GLfloat sombra[4][4];
@@ -218,7 +237,7 @@ void sombra() {
 //    desenha_sombra(lightPos, Vetor3D(0, 0, 1), 0);
     desenha_sombra(lightPos, Vetor3D(0, 1, 0), 0);
     desenha_sombra(lightPos, Vetor3D(0, 0, 1), 10.0);
-    desenha_sombra(lightPos, Vetor3D(-sqrt(2)/2, sqrt(2)/2, 0), 5.0, 25.0, 10.0);
+    desenha_sombra(lightPos, Vetor3D(-sqrt(2)/2, sqrt(2)/2, 0), 5.0);
 
     //-------------------sombra-------------------
 }
@@ -305,6 +324,12 @@ void teclado(unsigned char key, int x, int y) {
         break;
     case 'c':
         trocar_camera();
+        break;
+
+    case '!':
+        cout << glutGUI::cam->e.x << "," << glutGUI::cam->e.y << "," << glutGUI::cam->e.z << endl;
+        cout << glutGUI::cam->c.x << "," << glutGUI::cam->c.y << "," << glutGUI::cam->c.z << endl;
+        cout << endl;
         break;
 
     default:
