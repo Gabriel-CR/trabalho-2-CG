@@ -103,7 +103,7 @@ void GUI::displayInit()
     //    glScalef(width/2.0,height/2.0, 1);
     //    glTranslatef(1,1,0);
 
-    const float ar = glutGUI::height>0 ? (float) glutGUI::width / (float) glutGUI::height : 1.0;
+    const float ar = glutGUI::height > 0 ? (float) glutGUI::width / (float) glutGUI::height : 1.0;
     const float w = glutGUI::width;
     const float h = glutGUI::height;
     const float orthof = 0.003; //orthoFactor

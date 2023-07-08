@@ -4,7 +4,30 @@ using namespace std;
 
 #include <gui.h>
 #include <vector>
-#include "cadeira.h"
+#include <objeto.h>
+
+#include <shape.h>
+
+#include <cubo.h>
+#include <sofa.h>
+#include <televisao.h>
+#include <cama.h>
+#include <guardaroupa.h>
+#include <cadeira.h>
+#include <mesa.h>
+#include <fogao.h>
+#include <geladeira.h>
+#include <microondas.h>
+#include <pc.h>
+#include <documento.h>
+#include <mesapc.h>
+#include <piscina.h>
+#include <escorregador.h>
+#include <vasosanitario.h>
+#include <pia.h>
+#include <chuveiro.h>
+#include <parede.h>
+#include <teto.h>
 
 //-------------------picking------------------
 vector<Vetor3D> pontosControle;
@@ -16,8 +39,9 @@ bool draw_shadow = false;
 bool draw_shadow_objeto = true;
 bool pontual = false;
 bool luzesEscondidas = true;
-GLfloat k = 1.0;
-float distancia = 3.0;
+GLfloat k = 0.0;
+float distancia = 10.0;
+int view_port = 1;
 
 bool viewports = false;
 bool scissored = false;
@@ -68,37 +92,50 @@ void viewPorts() {
         gluLookAt(glutGUI::cam->e.x,glutGUI::cam->e.y,glutGUI::cam->e.z, glutGUI::cam->c.x,glutGUI::cam->c.y,glutGUI::cam->c.z, glutGUI::cam->u.x,glutGUI::cam->u.y,glutGUI::cam->u.z);
             cenario();
 
-    glViewport(0, 3*height/4, width/4, height/4);
-    glLoadIdentity();
-    glLoadIdentity();
-    gluLookAt(distancia,0,0, 0,0,0, 0,1,0);
-        cenario();
-
-    glViewport(0, 3*height/8, width/4, height/4);
-    glLoadIdentity();
-    gluLookAt(0,distancia,0, 0,0,0, 0,0,-1);
-        cenario();
-
-    glViewport(0, 0, width/4, height/4);
-    glLoadIdentity();
-    gluLookAt(0,0,distancia, 0,0,0, 0,1,0);
-        cenario();
+    if (view_port == 1) {
+        glViewport(0, 3*height/4, width/4, height/4);
+        glLoadIdentity();
+        glLoadIdentity();
+        gluLookAt(distancia,0,0, 0,0,0, 0,1,0);
+            cenario();
+    } else if (view_port == 2) {
+        glViewport(0, 3*height/4, width/4, height/4);
+        glLoadIdentity();
+        gluLookAt(0,distancia,0, 0,0,0, 0,0,-1);
+            cenario();
+    } else if (view_port == 3) {
+        glViewport(0, 3*height/4, width/4, height/4);
+        glLoadIdentity();
+        gluLookAt(0,0,distancia, 0,0,0, 0,1,0);
+            cenario();
+    }
 }
 //-------------------viewPorts------------------
 
-void cenario() {
-    //GUI::setLight(1,1,3,5,true,false);               //multiplas fontes de luz
-    //GUI::setLight(2,-1.5,0.5,-1,true,false);         //multiplas fontes de luz
-    GUI::setLight(3,-5,3,5,true,false);
-    //GUI::setLight(3,-5,3,5,true,true); //atenuada
-    //GUI::setLight(3,-5,3,5,true,false,false,false,true,true); //spot (holofote, lanterna)
+void init_cenario() {
+    cout << "desenhando..." << endl;
 
+    objetos.push_back(new Cama( Vetor3D(1, 0, 5.3), Vetor3D(0, -90, 0), Vetor3D(0, 0, 0) ));
+    objetos.push_back(new MesaPc( Vetor3D(1, 0, 2.3), Vetor3D(0, 0, 0), Vetor3D(0, 0, 0) ));
+    objetos.push_back(new Pc( Vetor3D(0.2, 1.1, 2.3), Vetor3D(0, 0, 0), Vetor3D(0, 0, 0) ));
+    objetos.push_back(new Documento( Vetor3D(1.7, 1.1, 2.3), Vetor3D(0, 0, 0), Vetor3D(0, 0, 0) ));
+    objetos.push_back(new Cadeira( Vetor3D(1, 0, 2.7), Vetor3D(0, 180, 0), Vetor3D(0, 0, 0) ));
+    objetos.push_back(new GuardaRoupa( Vetor3D(4, 0, 4), Vetor3D(0, -90, 0), Vetor3D(0, 0, 0) ));
+
+    objetos.push_back(new Sofa( Vetor3D(3, 0, -1), Vetor3D(0, -90, 0), Vetor3D(0, 0, 0) ));
+    objetos.push_back(new Sofa( Vetor3D(1, 0, 0.5), Vetor3D(0, 180, 0), Vetor3D(0, 0, 0) ));
+    objetos.push_back(new Televisao( Vetor3D(1, 0, -3), Vetor3D(0, 0, 0), Vetor3D(0, 0, 0) ));
+
+    objetos.push_back(new Piscina( Vetor3D(-4.7, 0.01, 2), Vetor3D(0, 90, 0), Vetor3D(0.5, 0.5, 0.5) ));
+    objetos.push_back(new Escorregador( Vetor3D(-6, 0, -5), Vetor3D(0, 45, 0), Vetor3D(0, 0, 0) ));
+}
+
+void cenario() {
+    GUI::setLight(0,-10.0,10.0,0.0,true,false,false,false,pontual);
     GUI::drawOrigin(0.5);
 
-    GUI::setColor(1,1,1,1,true);
-    GUI::drawFloor(5,5,0.05,0.05);
-//    GUI::setColor(0,0,0);
-//    Desenha::drawGrid( 5, 0, 1, 1 );
+    GUI::setColor(1,1,1,1);
+    GUI::drawFloor(15,15,0.05,0.05);
 
     desenhaPontosDeControle();
 }
@@ -107,16 +144,16 @@ void cenario() {
 * recebe a posição da luz e np (normal do plano)
 * desenha a sombra de cada objeto em um plano
 */
-void desenha_sombra(float lightPos[4], Vetor3D np) {
+void desenha_sombra(float lightPos[4], Vetor3D np, float k, float h=25.0, float w=25.0) {
     glPushMatrix();
-        GUI::setColor(0.6,0.4,0.0);
-        GUI::drawPlane(np, -k, 15, 15, 0.5, 0.5);
+        GUI::setColor(1,1,1,1);
+        GUI::drawPlane(np, -k-0.0005, h, w, 0.5, 0.5);
     glPopMatrix();
     glPushMatrix();
-            GLfloat sombra[4][4];
-            GLfloat plano[4] = {np.x, np.y, np.z, k};
-            GUI::shadowMatrix(sombra, plano, lightPos);
-            glMultTransposeMatrixf( (GLfloat*)sombra );
+        GLfloat sombra[4][4];
+        GLfloat plano[4] = {np.x, np.y, np.z, k};
+        GUI::shadowMatrix(sombra, plano, lightPos);
+        glMultTransposeMatrixf( (GLfloat*)sombra );
 
         glDisable(GL_LIGHTING);
         glColor3d(0.0,0.0,0.0);
@@ -147,14 +184,15 @@ void sombra() {
 
     //-------------------sombra-------------------
     // permitir o usuario transladar a luz
-    float lightPos[4] = {1.5 + glutGUI::lx, 1.5 + glutGUI::ly, 1.5 + glutGUI::lz, pontual};
+    float lightPos[4] = {-10.0 + glutGUI::lx, 10.0 + glutGUI::ly, 0.0 + glutGUI::lz, pontual};
     // alterar entre luz pontual e luz distante com o uso do atributo pontual
-    GUI::setLight(0,1.5,1.5,1.5,true,false,false,false,pontual);
+    GUI::setLight(0,-10.0,10.0,0.0,true,false,false,false,pontual);
     //desenhando os objetos projetados
-    desenha_sombra(lightPos, Vetor3D(0, 0, 1));
-    desenha_sombra(lightPos, Vetor3D(0, 1, 0));
-    desenha_sombra(lightPos, Vetor3D(-1, 0, 0));
-    desenha_sombra(lightPos, Vetor3D(0, sqrt(2)/2, sqrt(2)/2));
+//    desenha_sombra(lightPos, Vetor3D(0, 0, 1), 0);
+    desenha_sombra(lightPos, Vetor3D(0, 1, 0), 0);
+    desenha_sombra(lightPos, Vetor3D(0, 0, 1), 10.0);
+    desenha_sombra(lightPos, Vetor3D(-sqrt(2)/2, sqrt(2)/2, 0), 5.0, 25.0, 10.0);
+
     //-------------------sombra-------------------
 }
 
@@ -165,10 +203,11 @@ void desenha() {
 
     if (draw_shadow) {
         sombra();
-    } else if (viewports) {
-        viewPorts();
     } else {
         cenario();
+    }
+    if (viewports) {
+        viewPorts();
     }
 
 //    glMatrixMode(GL_PROJECTION);
@@ -196,9 +235,9 @@ void desenha() {
         objetos[pontoSelecionado-1]->escala = e;
     }
 
-    t.x += glutGUI::dtx;
-    t.y += glutGUI::dty;
-    t.z += glutGUI::dtz;
+    t.x += 2.0*glutGUI::dtx;
+    t.y += 2.0*glutGUI::dty;
+    t.z += 2.0*glutGUI::dtz;
     r.x += 4.0*glutGUI::dax;
     r.y += 4.0*glutGUI::day;
     r.z += 4.0*glutGUI::daz;
@@ -223,6 +262,9 @@ void teclado(unsigned char key, int x, int y) {
 
     case 'v':
         viewports = !viewports;
+        break;
+    case 'V':
+        view_port == 3 ? view_port = 1 : view_port++;
         break;
     case '+':
         distancia += 1.0;
@@ -277,9 +319,10 @@ void mouse(int button, int state, int x, int y) {
 
 int main() {
     cout << "Hello World!" << endl;
-    objetos.push_back(new Cadeira());
-    objetos.push_back(new Cadeira());
+//    objetos.push_back(new Cadeira());
+//    objetos.push_back(new Cadeira());
     // precisa desenhar o cenario todo antes de iniciar o programa
+    init_cenario();
 
     GUI gui = GUI(800,600,desenha,teclado,mouse);
 }
